@@ -1,7 +1,10 @@
 use futures::executor::block_on;
+use futures::prelude::*;
+use libp2p::ping::{Ping, PingConfig};
+use libp2p::swarm::{Swarm, SwarmEvent};
 use libp2p::{identity, PeerId};
-use libp2p::ping::{Ping, PingConfig}
 use std::error::Error;
+use std::task::Poll;
 
 fn main() -> Result<(), Box<dyn Error>> {
     // create network identity.
@@ -49,11 +52,11 @@ fn main() -> Result<(), Box<dyn Error>> {
     // 2. establish outgoing connection if address specified on cli
     block_on(future::poll_fn(move |cx| loop {
         match swarm.poll_next_unpin(cx) {
-            Poll::Ready(Some(event)) => {
-                if let SwarmEvent::NewListenAddr { address, .. } = event {
-                    println!("Listening on {:?}", address);
-                }
-            }
+            Poll::Ready(Some(event)) => match event {
+                SwarmEvent::NewListenAddr { address, .. } => println!("Listening on {:?}", address),
+                SwarmEvent::Behaviour(event) => println!("{:?}", event),
+                _ => {}
+            },
             Poll::Ready(None) => return Poll::Ready(()),
             Poll::Pending => return Poll::Pending
         }
