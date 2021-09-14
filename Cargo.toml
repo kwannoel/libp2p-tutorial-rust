@@ -1,0 +1,8 @@
+[package]
+name = "rust-libp2p-tutorial"
+version = "0.1.0"
+edition = "2018"
+
+[dependencies]
+libp2p = "0.39.1"
+futures = "0.3.17"
